@@ -5,6 +5,7 @@ from tkinter import ttk, StringVar, Toplevel, filedialog
 from tkcalendar import Calendar, DateEntry
 import csv
 from datetime import datetime, timedelta
+from Miso_Load import create_Load_Data_tab, handle_data_fetch_miso_load
 from real_time_data import create_real_time_data_tab, handle_data_fetch_real_time #real time tab and function imported
 import time
 import multiprocessing
@@ -161,8 +162,18 @@ def handle_data_fetch_day_ahead_pricing(start_date, end_date, node_var, progress
     else:
         return None
 
+def open_load_data_window():
+    # Create a new window for MISO Load Data
+    load_data_window = tk.Toplevel(root)
+    load_data_window.title("MISO Load Data")
+
+    # Call the create_Load_Data_tab function from the MISO_Load file and pass the necessary arguments
+    create_Load_Data_tab(load_data_window, load_date_entry, region_var)
+
+    load_data_window.mainloop()
+
 def main():
-    global root, node_var, start_date_entry, end_date_entry, real_time_date_entry
+    global root, node_var, start_date_entry, end_date_entry, real_time_date_entry, region_var, load_date_entry
 
     # Create the main window
     root = tk.Tk()
@@ -190,6 +201,18 @@ def main():
     end_date_entry = DateEntry(root, width=12, background="darkblue", foreground="white", borderwidth=2)
     end_date_entry.pack(pady=10)
 
+    # Create the region selection dropdown for load data
+    region_var = tk.StringVar()
+    region_dropdown = ttk.Combobox(root, textvariable=region_var, values=["", "NORTH", "SOUTH", "CENTRAL", "EAST", "WEST"], width=15)
+    region_dropdown.pack(pady=10)
+    region_dropdown.set("Load by Region")
+
+    # Create date entry field with calendar button for load data
+    load_date_label = tk.Label(root, text="Enter Load Data Date (YYYY-MM-DD):")
+    load_date_label.pack(pady=10)
+    load_date_entry = DateEntry(root, width=12, background="darkblue", foreground="white", borderwidth=2)
+    load_date_entry.pack(pady=10)
+
     # Create date entry field with calendar button for real-time data
     real_time_date_label = tk.Label(root, text="Enter Real-Time Data Date (YYYY-MM-DD):")
     real_time_date_label.pack(pady=10)
@@ -207,6 +230,10 @@ def main():
     # Create a button to fetch and display the real-time data
     fetch_button_real_time = tk.Button(root, text="Fetch Real-Time Data", command=lambda: display_data_real_time(handle_data_fetch_real_time(node_var, real_time_date_entry.get_date().strftime("%Y-%m-%d"))))
     fetch_button_real_time.pack(pady=20)
+
+    # Create a button to open the MISO Load Data window
+    load_button = tk.Button(root, text="Load Data", command=open_load_data_window)
+    load_button.pack(pady=20)
 
     root.mainloop()
 
